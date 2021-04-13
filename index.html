@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Neo NFT Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="panel.css" type="text/css" />
+
+    <script src="vue.min.js"></script>
+
+</head>
+
+<body style="background-color: cadetblue;">
+
+<style>
+.sdkfunc {
+    position: relative; float: left; width: 100%;
+}
+.sdkborder {
+    padding: 3px; margin: 5px; position: relative; float: left; border: solid 2px green ; text-align: center
+}
+.sdktitle {
+    width: 100%; text-align: center;
+}
+.sdkbutton {
+    padding: 3px; margin: 5px; position: relative; float: left;
+}
+.sdkfuncpar .sdkres .sdkresfunc {
+    position: relative; float: left; width: 100%
+}
+.sdkclear {
+    clear:both;
+}
+</style>
+
+<div class="sdkmain" id="app">
+    <div class="sdkfunc">
+        <div class="sdkborder">
+            <div class="sdktitle">合约方法</div>
+            <button class="sdkbutton" onclick="showDiv('nft_mint')">mint</button>
+            <button class="sdkbutton" onclick="showDiv('nft_transfer')">transfer</button>
+            <button class="sdkbutton" onclick="showDiv('nft_ownerOf')">ownerOf</button>
+            <button class="sdkbutton" onclick="showDiv('nft_properties')">properties</button>
+        </div>
+
+        <div class="sdkborder">
+            <div class="sdktitle">DEX 合约方法</div>
+            <button class="sdkbutton" onclick="showDiv('dex_nft_make_offer')">make_offer</button>
+            <button class="sdkbutton" onclick="showDiv('dex_nft_fill_offer')">fill_offer</button>
+        </div>
+
+    </div>
+
+    <div class="sdkfuncpar">
+        <div><br>&nbsp;<br></div>
+
+        <!-- nft_mint -->
+        <div class="dis" id="nft_mint" style="display:none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="nft_mint_script" name="nft_mint_script" value="0x35d8e442403d150d81d13bb14f9b4bed036dcc26"><br/>
+
+            {{ lang.div_invoke_sbParamJson }} 地址hash, nft属性<br/>
+            <input style="width: 100%" type="text" id="nft_mint_params" name="nft_mint_params" value='[{"type": "ByteArray","value": "e716fac9b001e5b86783f9c8e3bc0e4d59c67c93"},{"type": "String","value": "Cloud"}]'/><br/>
+
+            <br/><button onclick="invoke_nft_mint()">{{ lang.div_invoke_do }}</button>
+        </div>
+
+        <!-- nft_transfer -->
+        <div class="dis" id="nft_transfer" style="display:none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="nft_transfer_script" name="nft_transfer_script" value="0x35d8e442403d150d81d13bb14f9b4bed036dcc26"><br/>
+
+            {{ lang.div_invoke_sbParamJson }} 拥有者地址hash, 接受者地址hash, nft token id<br/>
+            <input style="width: 100%" type="text" id="nft_transfer_params" name="nft_transfer_params" value='[{"type": "ByteArray","value": "e716fac9b001e5b86783f9c8e3bc0e4d59c67c93"},{"type": "ByteArray","value": "c806b6a47ca50881fdfda637094d3aeeb8b34b68"},{"type": "ByteArray","value": "a327466f39dd13f8ccf5e3652c84dad65feccf269a850bf4c51935162a58e14b"}]'/><br/>
+
+            <br/><button onclick="invoke_nft_transfer()">{{ lang.div_invoke_do }}</button>
+        </div>
+
+        <!-- nft_ownerof -->
+        <div class="dis" id="nft_ownerOf" style="display:none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="nft_ownerof_script" name="nft_ownerof_script" value="0x35d8e442403d150d81d13bb14f9b4bed036dcc26"><br/>
+
+            {{ lang.div_invoke_sbParamJson }} nft token id<br/>
+            <input style="width: 100%" type="text" id="nft_ownerof_params" name="nft_ownerof_params" value='[{"type": "ByteArray","value": "3be0acd8c4598e04dea49ebc5dffb05599297724ed1524df70c538d9656de8ca"}]'/><br/>
+
+            <br/><button onclick="invoke_nft_ownerOf()">{{ lang.div_invoke_do }}</button>
+        </div>
+        
+        <!-- nft_properties -->
+        <div class="dis" id="nft_properties" style="display: none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="nft_properties_script" name="nft_properties_script" value="0x35d8e442403d150d81d13bb14f9b4bed036dcc26"><br/>
+
+            {{ lang.div_makeraw_sbParamJson }} nft token id<br/>
+            <input style="width: 100%" type="text" id="nft_properties_params" name="nft_properties_params" value='[{"type": "ByteArray","value": "3be0acd8c4598e04dea49ebc5dffb05599297724ed1524df70c538d9656de8ca"}]'/><br/>
+
+            <br/><button onclick="invoke_nft_properties()">{{ lang.div_makeraw_do }}</button>
+        </div>
+
+        <!-- dex_nft_make_offer -->
+        <div class="dis" id="dex_nft_make_offer" style="display: none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="dex_nft_make_offer_script" name="dex_nft_make_offer_script" value="0x3662e523c3cd3dbf2d6ea77c000b4f0c5d45e96e"><br/>
+
+            {{ lang.div_makeraw_sbParamJson }} 挂单者地址hash, nft合约hash, nft token id, 接受代币hash, 价格, 最晚成功时间<br/>
+            <input style="width: 100%" type="text" id="dex_nft_make_offer_params" name="dex_nft_make_offer_params" value='[{"type": "ByteArray","value": "e716fac9b001e5b86783f9c8e3bc0e4d59c67c93"},{"type": "ByteArray","value": "26cc6d03ed4b9b4fb13bd1810d153d4042e4d835"},{"type": "ByteArray","value": "5c7c1d339521fc6b19144b393a2512c0c802d004a35875978360ad32cc735b88"},{"type": "ByteArray","value": "d73d0d7012b8becf62d0fec38ec6b748afd55aec"},{"type": "Integer","value": "99999"},{"type": "Integer","value": "1735664461"}]'/><br/>
+
+            <br/><button onclick="invoke_dex_nft_make()">{{ lang.div_makeraw_do }}</button>
+        </div>
+
+        <!-- dex_nft_fill_offer -->
+        <div class="dis" id="dex_nft_fill_offer" style="display: none">
+            合约哈希<br/>
+            <input style="width: 100%" type="text" id="dex_nft_fill_offer_script" name="dex_nft_fill_offer_script" value="0x3662e523c3cd3dbf2d6ea77c000b4f0c5d45e96e"><br/>
+
+            {{ lang.div_makeraw_sbParamJson }} 购买者地址hash, 挂单id, 最晚交易时间<br/>
+            <input style="width: 100%" type="text" id="dex_nft_fill_offer_params" name="dex_nft_fill_offer_params" value='[{"type": "ByteArray","value": "e716fac9b001e5b86783f9c8e3bc0e4d59c67c93"},{"type": "ByteArray","value": "5d9b5ad4a7f07886c1767a7558d0b413fe8e593fa28dbdaf19af5019c8a14b76"},{"type": "Integer","value": "1735664461"}]'/><br/>
+
+            <br/><button onclick="invoke_dex_nft_fill()">{{ lang.div_makeraw_do }}</button>
+        </div>
+    </div>
+
+    <div class="sdkclear"></div>
+    
+</div>
+
+<br>
+listener callback data：
+<div id="res" class="sdkres"></div>
+<br>
+function callback data：
+<div id="res_func" class="sdkresfunc"></div>
+
+<br>
+测试网合约执行结果检查：
+<div class="sdkfuncpar">
+    <div><br>&nbsp;<br></div>
+
+    <!-- invokeScript -->
+    <div class="dis" id="invoke_answer_check">
+        交易id<br />
+        <input style="width: 100%" type="text" id="transaction_id" name="transaction_id" value=""><br />
+
+        <br /><button onclick="invoke_answer_check()">检查</button>
+    </div>
+</div>
+
+<br>
+answer check callback data：
+<div id="answerRes" class="sdkres"></div>
+
+<script src="lang.index.js"></script>
+
+    <script>
+        // var token_id = '2d404f5084cd6d5a33834ae85f5e83d671238c5e0e31373cb75d3da6d27178d7'
+        window.addEventListener('NEOLine.NEO.EVENT.READY', () => {
+            const neoline = new NEOLine.Init();
+            neoline.getAccount().then(account => console.log(account))
+        });
+
+        function showRes(data) {
+            var resObj = document.getElementById('res')
+            resObj.innerHTML = '<pre>' + JSON.stringify(JSON.parse(data), null, 4) + '</pre>'
+        }
+
+        function showFuncRes(data) {
+            var resObj = document.getElementById('res_func')
+            resObj.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>'
+        }
+
+        function showAnswerRes(data) {
+            var resObj = document.getElementById('answerRes')
+            resObj.innerHTML = '<pre>' + JSON.stringify(JSON.parse(data), null, 4) + '</pre>'
+        }
+
+        function showDiv(id) {
+            document.getElementById("nft_mint").style.display = "none";
+            document.getElementById("nft_transfer").style.display = "none";
+            document.getElementById("nft_ownerOf").style.display = "none";
+            document.getElementById("nft_properties").style.display = "none";
+
+            document.getElementById("dex_nft_make_offer").style.display = "none";
+            document.getElementById("dex_nft_fill_offer").style.display = "none";
+
+            if (id) document.getElementById(id).style.display = ""
+        }
+
+        function initSDK() {
+            showDiv(null)
+            // window.addEventListener('NEOLine.NEO.EVENT.READY', () => {
+            //     const neoline = new NEOLine.Init();
+            //     neoline.getAccount()
+            //     .then(account => console.log(account))
+            // });
+        }
+
+        function invoke_nft_mint() {
+            let data = {
+                script: document.getElementById('nft_mint_script').value,
+                ParamJson: document.getElementById('nft_mint_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            neoline_invoke(data.script, data.ParamJson, 'mint');
+        }
+
+        function invoke_nft_transfer() {
+            let data = {
+                script: document.getElementById('nft_transfer_script').value,
+                ParamJson: document.getElementById('nft_transfer_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            neoline_invoke(data.script, data.ParamJson, 'transfer');
+        }
+
+        function invoke_nft_ownerOf() {
+            let data = {
+                script: document.getElementById('nft_ownerof_script').value,
+                ParamJson: document.getElementById('nft_ownerof_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            neoline_invoke_read(data.script, data.ParamJson, 'ownerOf')
+        }
+
+        function invoke_nft_properties() {
+            let data = {
+                script: document.getElementById('nft_properties_script').value,
+                ParamJson: document.getElementById('nft_properties_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            neoline_invoke_read(data.script, data.ParamJson, 'properties')
+        }
+
+        function invoke_dex_nft_make() {
+            let data = {
+                script: document.getElementById('dex_nft_make_offer_script').value,
+                ParamJson: document.getElementById('dex_nft_make_offer_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            console.log(data)
+            neoline_invoke(data.script, data.ParamJson, 'makeOffer');
+        }
+
+        function invoke_dex_nft_fill() {
+            let data = {
+                script: document.getElementById('dex_nft_fill_offer_script').value,
+                ParamJson: document.getElementById('dex_nft_fill_offer_params').value
+            }
+            data.ParamJson = JSON.parse(data.ParamJson)
+            neoline_invoke(data.script, data.ParamJson, 'fillOffer');
+        }
+
+        function invoke_answer_check() {
+            let transaction_id = document.getElementById('transaction_id').value;
+
+            if (transaction_id != '') {
+                var httpRequest = new XMLHttpRequest();
+                let url = 'http://seed3.ngd.network:20332?jsonrpc=2.0&id=1&method=getapplicationlog&params=["' + transaction_id + '"]'
+                console.log(url)
+                httpRequest.open('GET', url, true);
+                httpRequest.send();
+
+                httpRequest.onreadystatechange = function () {
+                    if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+                        var json = httpRequest.responseText;
+                        console.log(json);
+                        showAnswerRes(json)
+                    }
+                };
+            }
+        }
+
+        function neoline_invoke(script, args, operation)
+        {
+            const neoline = new NEOLine.Init();
+            neoline.invoke({
+                scriptHash: script,
+                operation: operation,
+                args: args,
+                fee: '0.011',
+                network: 'TestNet',
+                broadcastOverride: false,
+                txHashAttributes: [
+                    {
+                        type: 'Boolean',
+                        value: true,
+                        txAttrUsage: 'Hash1'
+                    }
+                ]
+            }).then(result => {
+                console.log('Invoke transaction success!');
+                console.log('Transaction ID: ' + result.txid);
+                console.log('RPC node URL: ' + result.nodeURL);
+                showRes(JSON.stringify(result))
+            }).catch(result => {
+                console.log(result)
+            });
+        }
+
+        function neoline_invoke_read(script, args, operation)
+        {
+            const neoline = new NEOLine.Init();
+            neoline.invokeRead({
+                scriptHash: script,
+                operation: operation,
+                args: args
+            }).then(result => {
+                console.log('Invoke transaction success!');
+                console.log('Transaction ID: ' + result.txid);
+                console.log('RPC node URL: ' + result.nodeURL);
+                showRes(JSON.stringify(result))
+            }).catch(result => {
+                console.log(result)
+            });
+        }
+
+        initSDK()
+    </script>
+</body>
+
+</html>
